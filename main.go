@@ -6,6 +6,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
+	"time"
 )
 
 var (
@@ -18,6 +19,9 @@ var (
 	RequestCounter = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "request_count",
 	})
+	IncrementalCounter = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "incremental_count",
+	})
 )
 
 type MyDefaultHandler struct {
@@ -27,6 +31,7 @@ type MyDefaultHandler struct {
 type SpecialHandler struct {
 
 }
+
 
 func (m MyDefaultHandler) ServeHTTP(w http.ResponseWriter, r *http.Request){
 	log.Printf("Serving request for path %s", r.URL.Path)
@@ -43,8 +48,16 @@ func (s SpecialHandler) ServeHTTP(w http.ResponseWriter, r *http.Request){
 	RequestCounter.Inc()
 }
 
+func Increment(){
+	for {
+		IncrementCounter.Inc()
+		time.Sleep(time.Second * 2)
+	}
+}
+
 
 func main() {
+	go Increment()
 	mux := http.NewServeMux()
 	mux.Handle("/special", SpecialHandler{})
 	mux.Handle("/", MyDefaultHandler{})
@@ -52,3 +65,5 @@ func main() {
 	server := http.Server{Addr: "127.0.0.1:8080", Handler: mux}
 	server.ListenAndServe()
 }
+
+
