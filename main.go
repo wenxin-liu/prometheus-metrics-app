@@ -50,7 +50,7 @@ func (s SpecialHandler) ServeHTTP(w http.ResponseWriter, r *http.Request){
 
 func Increment(){
 	for {
-		IncrementCounter.Inc()
+		IncrementalCounter.Inc()
 		time.Sleep(time.Second * 2)
 	}
 }
